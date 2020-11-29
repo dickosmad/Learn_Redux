@@ -1,20 +1,28 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { increment, decrement, reset } from "./action";
+
+import { increment, decrement, reset } from "./counterActions";
+import { fetchUserSuccess } from "./usersActions";
 
 class Counter extends Component {
-  state = { count: 0 };
+  // state = { count: 0 };
   increment = () => {
     this.props.increment();
+    fetch(`https://jsonplaceholder.typicode.com/users/${this.props.count + 1}`)
+      .then((response) => response.json())
+      .then((data) => {
+        this.fetchUserSuccess(data);
+      });
   };
   decrement = () => {
     this.props.decrement();
   };
-  reset = () => {
-    this.props.reset();
+  fetchUserSuccess = (data) => {
+    this.props.fetchUserSuccess(data);
   };
 
   render() {
+    console.log("props ", this.props);
     return (
       <div className="counter">
         <h2>Counter</h2>
@@ -23,17 +31,28 @@ class Counter extends Component {
           <span>{this.props.count}</span>
           <button onClick={this.increment}>+</button>
         </div>
-        <button className="reset-button" onClick={this.reset}>
+        <button className="reset-button" onClick={() => this.props.reset()}>
           &#8634;
         </button>
+        <li>{this.props.users.length > 0 && this.props.users[0].name} </li>
       </div>
     );
   }
 }
+// Component counter will make a call to the API!
+// Map user actions as props to counter component.
+// Once API returns data, then you will make a call to the UserAction and pass the returned data .
+// Then UserAction will have the data , and it will call a Reducer with that data.
+// Then In the reducer you will update the user state.
+// Once user state is updated the you have to map user state to the component
+// And finally make use of that state to show the user.
+// To have user actions in your component you need to MapDispathToProps.
 
 const mapStateToProps = (state) => {
+  console.log("STATE", state);
   return {
-    count: state.count
+    count: state.reducer.count,
+    users: state.users.users
   };
 };
 // in this object, keys become prop names,
@@ -42,10 +61,13 @@ const mapStateToProps = (state) => {
 // By writing a mapDispatchToProps object (or function! but usually object)
 // and passing it to connect when you wrap your component, you’ll receive those
 // action creators as callable props. Here’s what I mean:
+// The work of MapDispatchToProps is to pass your actions/functions as props to the component.
+// The work of MapStateToProps is to pass your redux state as prop to the component.
 const mapDispatchToProps = {
   increment,
   decrement,
-  reset
+  reset,
+  fetchUserSuccess
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Counter);
