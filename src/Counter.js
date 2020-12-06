@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import { increment, decrement, reset } from "./counterActions";
-import { fetchUserSuccess } from "./usersActions";
+import { fetchUserSuccess, resetUser, removeUser } from "./usersActions";
 
 class Counter extends Component {
   // state = { count: 0 };
@@ -11,11 +11,19 @@ class Counter extends Component {
     fetch(`https://jsonplaceholder.typicode.com/users/${this.props.count + 1}`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("DATA Line 14", data);
         this.fetchUserSuccess(data);
       });
   };
   decrement = () => {
     this.props.decrement();
+    this.props.removeUser();
+  };
+
+  reset = () => {
+    console.log("DATA Line 24");
+    this.props.resetUser();
+    this.props.reset();
   };
   fetchUserSuccess = (data) => {
     this.props.fetchUserSuccess(data);
@@ -31,10 +39,14 @@ class Counter extends Component {
           <span>{this.props.count}</span>
           <button onClick={this.increment}>+</button>
         </div>
-        <button className="reset-button" onClick={() => this.props.reset()}>
+        <button className="reset-button" onClick={this.reset}>
           &#8634;
         </button>
-        <li>{this.props.users.length > 0 && this.props.users[0].name} </li>
+
+        {this.props.users.length > 0 &&
+          this.props.users.map((user) => {
+            return <li key={user.id}>{user.name} </li>;
+          })}
       </div>
     );
   }
@@ -49,7 +61,7 @@ class Counter extends Component {
 // To have user actions in your component you need to MapDispathToProps.
 
 const mapStateToProps = (state) => {
-  console.log("STATE", state);
+  // console.log("STATE", state);
   return {
     count: state.reducer.count,
     users: state.users.users
@@ -67,7 +79,9 @@ const mapDispatchToProps = {
   increment,
   decrement,
   reset,
-  fetchUserSuccess
+  fetchUserSuccess,
+  resetUser,
+  removeUser
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Counter);

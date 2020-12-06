@@ -1,8 +1,12 @@
 import {
   FETCH_USER_REQUEST,
   FETCH_USER_FAILURE,
-  FETCH_USER_SUCCESS
+  FETCH_USER_SUCCESS,
+  RESET_USER,
+  REMOVE_USER
 } from "./usersActions";
+
+// 1 - Whenever you want to change the state you will change it in the reducer.
 
 const initialState = {
   users: [],
@@ -40,6 +44,17 @@ export default function userReducer(state = initialState, action) {
         error: action.payload.error,
         users: []
       };
+    case RESET_USER:
+      return {
+        ...state,
+        users: []
+      };
+    case REMOVE_USER:
+      return {
+        ...state,
+        users: state.users.slice(0, -1)
+      };
+
     default:
       // ALWAYS have a default case in a reducer
       return state;

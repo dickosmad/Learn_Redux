@@ -18,7 +18,8 @@ export default function reducer(state = initialState, action) {
     case "RESET":
       return {
         ...state,
-        count: 0
+        count: 0,
+        users: []
       };
     default:
       return state;
